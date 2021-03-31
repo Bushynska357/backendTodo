@@ -1,11 +1,9 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
 
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { CounterModule } from './counter/counter.module';
 
 import { listModule } from './list/list.module';
 import { AuthModule } from './auth/auth.module';
@@ -23,10 +21,10 @@ import { ListController } from './list/list.controller';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule implements NestModule{
+export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
-    .apply(JwtParseMiddleware)
-     .forRoutes(AppController,ListController);
+      .apply(JwtParseMiddleware)
+      .forRoutes(AppController, ListController);
   }
 }
