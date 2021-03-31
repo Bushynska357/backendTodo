@@ -8,6 +8,7 @@ import { AuthController } from "./auth.controller";
 import { AuthService } from "./auth.service";
 import { Constants } from "../constants";
 import { User, UserSchema } from "./user.schema";
+import { JwtParseMiddleware } from "./jwt-parse.middleware";
 
 @Module({
     providers:[AuthService],

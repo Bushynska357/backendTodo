@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { Module} from "@nestjs/common";
 import { JwtModule } from "@nestjs/jwt";
 import { MongooseModule } from "@nestjs/mongoose";
 import { Constants } from "../constants";
@@ -35,5 +35,5 @@ import { List, ListSchema } from "./schemas/list.schema";
 })
 
 export class listModule{
-
+  
 }

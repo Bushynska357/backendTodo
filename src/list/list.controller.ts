@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { AnyFilesInterceptor } from '@nestjs/platform-express';
 import { plainToClass, serialize } from 'class-transformer';
 import { AuthGuard } from '../auth.guard';
+import { JwtParseMiddleware } from '../auth/jwt-parse.middleware';
 import { CreateTodoDto } from './dto/create-todo.dto';
 import { TodoItem } from './dto/transform-todo.dto';
 import { UpdateTodoDto } from './dto/update-todo.dto';
@@ -15,16 +16,17 @@ import { List } from './schemas/list.schema';
     excludePrefixes: ['_'],
 })
 @Controller('list')
+
 export class ListController {
     
     constructor(private readonly listService:ListService,
         private readonly jwtService: JwtService
         ){}
     
-    
+   
     @Get()
-    @UseGuards(new AuthGuard())
-    getAll() : Promise<TodoItem[]>{
+    @UseGuards(AuthGuard)
+    getAll(): Promise<TodoItem[]>{
         return this.listService.findAll()    
     }
 

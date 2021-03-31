@@ -54,15 +54,15 @@ export class AuthService {
                 user.passwordHash,
             );
             if (isMatch) {
-                // const payload = { email: signIn.email, fullname:user.fullname };
-                // const payload =  new userDto(user.toObject());
-                // const payload = classToPlain(data)
-                const data = plainToClass(userDto,user, { excludeExtraneousValues: true })
-                console.log(data)
-                const payload = {data}
+               
+                const payload = {
+                    id: user.id,
+                    email: user.email,
+                    fullname: user.fullname,
+                };
                 const authToken = {
                     success:'true', 
-                    accessToken: this.jwtService.sign(payload),
+                    accessToken: this.jwtService.sign(payload)
                 };
                 return authToken
             }

@@ -24,7 +24,9 @@ export class AuthController{
     @Post('sign-in')
     async signIn(
         @Body() signInUser:SignInUserDto){ 
-        return this.authService.signIn(signInUser)
+            // res = await this.authService.signIn(signInUser)
+            // console.log(res.user)
+        return await this.authService.signIn(signInUser)
     }
 
 }

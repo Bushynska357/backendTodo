@@ -1,7 +1,7 @@
 import { Exclude, Expose, Type } from 'class-transformer';
 
 export class userDto{
-    @Expose()
+    // @Expose()
     readonly _id:number
 
     @Expose()
