@@ -1,4 +1,5 @@
 import { Exclude, Expose, Type } from 'class-transformer';
+import { userRole } from './roles/role.enum';
 
 export class userDto{
     // @Expose()
@@ -10,13 +11,16 @@ export class userDto{
     };
 
     @Expose()
-    readonly email:string
+    readonly email:string;
 
     @Exclude()
-    readonly passwordHash:string
+    readonly passwordHash:string;
 
     @Expose()
-    readonly fullname:string
+    readonly fullname:string;
+
+    @Expose()
+    readonly role:userRole;
 
     constructor(partial: Partial<userDto>) {
         Object.assign(this, partial);

@@ -59,6 +59,7 @@ export class AuthService {
                     id: user.id,
                     email: user.email,
                     fullname: user.fullname,
+                    role:user.role
                 };
                 const authToken = {
                     success:'true', 

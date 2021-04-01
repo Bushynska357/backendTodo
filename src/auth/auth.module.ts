@@ -8,9 +8,14 @@ import { AuthController } from "./auth.controller";
 import { AuthService } from "./auth.service";
 import { Constants } from "../constants";
 import { User, UserSchema } from "./user.schema";
+import { RolesGuard } from "./roles/roles.guard";
+import { APP_GUARD } from "@nestjs/core";
 
 @Module({
-    providers:[AuthService],
+    providers:[AuthService,{
+        provide: APP_GUARD,
+        useClass: RolesGuard,
+      } ],
     controllers:[AuthController],
     imports:[JwtModule.register({ secret: Constants.secret}),
         MongooseModule.forFeatureAsync([

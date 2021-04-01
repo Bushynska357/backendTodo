@@ -1,6 +1,7 @@
 import { Module} from "@nestjs/common";
 import { JwtModule } from "@nestjs/jwt";
 import { MongooseModule } from "@nestjs/mongoose";
+import { RolesGuard } from "../auth/roles/roles.guard";
 import { Constants } from "../constants";
 
 import { CounterModule } from "../counter/counter.module";
@@ -10,7 +11,7 @@ import { ListService } from "./list.service";
 import { List, ListSchema } from "./schemas/list.schema";
 
 @Module({
-    providers:[ListService],
+    providers:[ListService,RolesGuard],
     controllers:[ListController],
     imports:[JwtModule.register({ secret: Constants.secret}),
         MongooseModule.forFeatureAsync([
