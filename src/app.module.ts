@@ -7,7 +7,7 @@ import { AppService } from './app.service';
 
 import { listModule } from './list/list.module';
 import { AuthModule } from './auth/auth.module';
-import { Constants } from './constants';
+import { dbAccessToken } from './constants';
 import { JwtParseMiddleware } from './auth/jwt-parse.middleware';
 import { ListController } from './list/list.controller';
 
@@ -16,7 +16,7 @@ import { ListController } from './list/list.controller';
   imports: [
     listModule,
     AuthModule,
-    MongooseModule.forRoot(Constants.DB)
+    MongooseModule.forRoot(dbAccessToken)
   ],
   controllers: [AppController],
   providers: [AppService],

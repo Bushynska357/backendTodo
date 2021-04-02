@@ -22,6 +22,9 @@ export class userDto{
     @Expose()
     readonly role:userRole;
 
+    @Expose()
+    refreshtoken:string;
+
     constructor(partial: Partial<userDto>) {
         Object.assign(this, partial);
     }

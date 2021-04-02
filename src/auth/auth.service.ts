@@ -8,8 +8,8 @@ import { User, UserDocument } from './user.schema';
 import { userDto } from './user.dto';
 import { SignUpUserDto } from './auth-dto/sign-up.dto';
 import { SignInUserDto } from './auth-dto/sign-in.dto';
-import { plainToClass, classToPlain } from 'class-transformer';
-// import { PayloadUserDto } from './auth-dto/payload.dto';
+import { accessToken, refreshTokenByUser } from '../constants';
+
 
 @Injectable()
 export class AuthService {
@@ -55,22 +55,58 @@ export class AuthService {
             );
             if (isMatch) {
                
-                const payload = {
+                const payload= {
                     id: user.id,
                     email: user.email,
                     fullname: user.fullname,
                     role:user.role
                 };
+               
                 const authToken = {
-                    success:'true', 
-                    accessToken: this.jwtService.sign(payload)
+                   
+                    // accessToken:  await this.jwtService.signAsync(payload, { secret:accessToken.secret, expiresIn:accessToken.expiresIn})
+                    accessToken: await this.generateAccessToken(payload)
                 };
-                return authToken
+                const authRefreshToken = {
+                  
+                    refreshToken: await this.generateRefreshToken(payload)
+                };
+                return {
+                    success:'true',
+                    ...authToken,
+                    ...authRefreshToken
+                };
+            
             }
             
         }else{
             throw new UnauthorizedException();
         }
+    }
+
+    async generateAccessToken(user){
+        const newAccessToken = await this.jwtService.signAsync(user, { secret:accessToken.secret, expiresIn:accessToken.expiresIn})
+        return newAccessToken  
+    }
+
+    async generateRefreshToken(user){
+        const newRefreshToken = await this.jwtService.signAsync(user, { secret:refreshTokenByUser.secret, expiresIn:refreshTokenByUser.expiresIn});
+        await this.userModel.findByIdAndUpdate(user.id,{refreshtoken:newRefreshToken});
+        return newRefreshToken  
+    }
+
+   
+    async verifyRefreshToken(refreshTokenReq:string){
+        console.log("refreshTokenReq", refreshTokenReq['refreshToken'])
+        const userRefreshTokenResponse =  await this.jwtService.verifyAsync( refreshTokenReq['refreshToken'], {secret:refreshTokenByUser.secret});
+        const refreshToken = await this.generateRefreshToken({id: userRefreshTokenResponse.id, fullname: userRefreshTokenResponse.fullname, email:userRefreshTokenResponse.email});
+        const accessToken= await this.generateAccessToken({id: userRefreshTokenResponse.id, fullname: userRefreshTokenResponse.fullname, email:userRefreshTokenResponse.email})
+        await this.userModel.findByIdAndUpdate(userRefreshTokenResponse.id,{refreshtoken:refreshToken});
+        return {
+            accessToken,
+            refreshToken
+        }
+            
     }
        
 }

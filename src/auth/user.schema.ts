@@ -20,6 +20,9 @@ export class User{
 
     @Prop({default: userRole.user})
     role:userRole
+
+    @Prop()
+    refreshtoken:string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
