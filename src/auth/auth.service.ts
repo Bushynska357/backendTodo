@@ -1,14 +1,16 @@
-import { HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 
 import { User, UserDocument } from './user.schema';
-import { userDto } from './user.dto';
+import { UserDto } from './user.dto';
 import { SignUpUserDto } from './auth-dto/sign-up.dto';
 import { SignInUserDto } from './auth-dto/sign-in.dto';
-import { accessToken, refreshTokenByUser } from '../constants';
+import { refreshTokenConfig, refreshTokenSecret } from '../constants';
+import { classToPlain } from 'class-transformer';
+import { RefreshTokenDto } from './refresh-token.dto';
 
 
 @Injectable()
@@ -39,7 +41,7 @@ export class AuthService {
         
         const responseUser = await createdUser.save();
 
-        return new userDto(responseUser.toObject());
+        return new UserDto(responseUser.toObject());
     }
  
 
@@ -55,28 +57,10 @@ export class AuthService {
             );
             if (isMatch) {
                
-                const payload= {
-                    id: user.id,
-                    email: user.email,
-                    fullname: user.fullname,
-                    role:user.role
-                };
-               
-                const authToken = {
-                   
-                    // accessToken:  await this.jwtService.signAsync(payload, { secret:accessToken.secret, expiresIn:accessToken.expiresIn})
-                    accessToken: await this.generateAccessToken(payload)
-                };
-                const authRefreshToken = {
-                  
-                    refreshToken: await this.generateRefreshToken(payload)
-                };
-                return {
-                    success:'true',
-                    ...authToken,
-                    ...authRefreshToken
-                };
-            
+                const userForClassToPlain = new UserDto(user.toObject());
+                const payload = classToPlain(userForClassToPlain, { excludePrefixes: ['_'] });
+
+                return this.generateTokenPair(payload);
             }
             
         }else{
@@ -85,28 +69,44 @@ export class AuthService {
     }
 
     async generateAccessToken(user){
-        const newAccessToken = await this.jwtService.signAsync(user, { secret:accessToken.secret, expiresIn:accessToken.expiresIn})
-        return newAccessToken  
+        return this.jwtService.signAsync(user);
     }
 
     async generateRefreshToken(user){
-        const newRefreshToken = await this.jwtService.signAsync(user, { secret:refreshTokenByUser.secret, expiresIn:refreshTokenByUser.expiresIn});
-        await this.userModel.findByIdAndUpdate(user.id,{refreshtoken:newRefreshToken});
-        return newRefreshToken  
+        return this.jwtService.signAsync(user, refreshTokenConfig);  
     }
 
-   
-    async verifyRefreshToken(refreshTokenReq:string){
-        console.log("refreshTokenReq", refreshTokenReq['refreshToken'])
-        const userRefreshTokenResponse =  await this.jwtService.verifyAsync( refreshTokenReq['refreshToken'], {secret:refreshTokenByUser.secret});
-        const refreshToken = await this.generateRefreshToken({id: userRefreshTokenResponse.id, fullname: userRefreshTokenResponse.fullname, email:userRefreshTokenResponse.email});
-        const accessToken= await this.generateAccessToken({id: userRefreshTokenResponse.id, fullname: userRefreshTokenResponse.fullname, email:userRefreshTokenResponse.email})
-        await this.userModel.findByIdAndUpdate(userRefreshTokenResponse.id,{refreshtoken:refreshToken});
+    async generateTokenPair(user){
+        const refreshToken = await this.generateRefreshToken(user);
+        const accessToken= await this.generateAccessToken(user);
+        await this.userModel.findByIdAndUpdate(user.id, { refreshToken });
+        
         return {
+            success:true,
             accessToken,
             refreshToken
         }
+    }
+ 
+    async refresh(refreshTokenReq:RefreshTokenDto){
+        try {
+            const { id: userId } =  await this.jwtService.verifyAsync( refreshTokenReq.refreshToken, refreshTokenSecret );
+
+            const userFromDb = await this.userModel.findById(userId);
+            const userDtoForClassToPlain = new UserDto(userFromDb.toObject());
+            const payload = classToPlain(userDtoForClassToPlain, { excludePrefixes: ['_'] });
             
+            if (userFromDb.refreshToken === refreshTokenReq.refreshToken){
+               return this.generateTokenPair(payload)
+            }
+            
+            throw new HttpException('Invalid refresh token', HttpStatus.BAD_REQUEST)
+        } catch (ex) {
+            throw new BadRequestException(ex)
+         }
+
+        
     }
        
 }
+

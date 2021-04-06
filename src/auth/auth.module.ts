@@ -6,7 +6,7 @@ import { CounterModule } from "../counter/counter.module";
 import { CounterService } from "../counter/counter.service";
 import { AuthController } from "./auth.controller";
 import { AuthService } from "./auth.service";
-import { accessToken, refreshTokenByUser } from "../constants";
+import { accessToken } from "../constants";
 import { User, UserSchema } from "./user.schema";
 import { RolesGuard } from "./roles/roles.guard";
 import { APP_GUARD } from "@nestjs/core";
@@ -19,12 +19,8 @@ import { APP_GUARD } from "@nestjs/core";
     controllers:[AuthController],
     imports:[JwtModule.register({
         secret: accessToken.secret,
-        signOptions: { expiresIn: '60s' },
+        signOptions: { expiresIn: accessToken.expiresIn },
     }),
-        JwtModule.register({
-        secret: refreshTokenByUser.secret,
-        signOptions: { expiresIn: '5184000s' }
-        }),
         MongooseModule.forFeatureAsync([
             {
                 name: User.name,

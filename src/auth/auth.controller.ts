@@ -6,6 +6,7 @@ import { SignUpUserDto } from "./auth-dto/sign-up.dto";
 import { User } from "./user.schema";
 import { nextTick } from "node:process";
 import { RequestModel } from "./request.interface";
+import { RefreshTokenDto } from "./refresh-token.dto";
 
 @UseInterceptors(ClassSerializerInterceptor)
 @SerializeOptions({
@@ -27,18 +28,10 @@ export class AuthController{
     }
 
     @Post('refresh')
-    async refresh(@Body() token:string){
-      try{
-        const refreshTokenReq = token;
-        if (!refreshTokenReq){
-            throw new HttpException('Refresh token not found', HttpStatus.BAD_REQUEST)
-        }
-        return await this.authService.verifyRefreshToken(refreshTokenReq)
-      }catch(e){
-        throw new HttpException('Invalid refresh token', HttpStatus.BAD_REQUEST)
+    async refresh(@Body() token:RefreshTokenDto){
+      if (!token){
+        throw new HttpException('Refresh token not found', HttpStatus.BAD_REQUEST)
       }
-       
-        
-        
+      return await this.authService.refresh(token)        
     }
 }

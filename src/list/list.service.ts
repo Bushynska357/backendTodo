@@ -2,6 +2,7 @@ import { forwardRef, Inject, Injectable} from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { classToPlain, deserialize, plainToClass, serialize } from "class-transformer";
 import { Model } from "mongoose";
+import { User, UserDocument } from "../auth/user.schema";
 import { Counter, CounterDocument } from "src/counter/counter.schema";
 import { CounterService } from "src/counter/counter.service";
 

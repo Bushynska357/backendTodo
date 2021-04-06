@@ -1,7 +1,8 @@
 import { Exclude, Expose, Type } from 'class-transformer';
+import { List } from '../list/schemas/list.schema';
 import { userRole } from './roles/role.enum';
 
-export class userDto{
+export class UserDto{
     // @Expose()
     readonly _id:number
 
@@ -22,10 +23,13 @@ export class userDto{
     @Expose()
     readonly role:userRole;
 
-    @Expose()
-    refreshtoken:string;
+    @Exclude()
+    refreshToken:string;
 
-    constructor(partial: Partial<userDto>) {
+    // @Expose()
+    // items:List[];
+
+    constructor(partial: Partial<UserDto>) {
         Object.assign(this, partial);
     }
 }

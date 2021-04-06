@@ -24,7 +24,11 @@ export const accessToken = {
   expiresIn: '60s' 
 };
 
-export const refreshTokenByUser = {
+export const refreshTokenSecret = {
   secret: 'qnXmniCI7W2Gt3viS3vHYFUuLSjHKNJgtbP1eNu_enx7VYHbtlf3eKtfpfRgMRdaUEoCU_U-LRQ2dThF8cv1bWEWZC4GYRTDxG3IE-Vzuwjz61Ycy9cLU6j1QHN21hqd-B-lDUnWoEZSx1K4oYLEy6Q00BTEc26NfQ2_f1CnbJdTYnTWtCc6p9uyikd7piHZek69unQbn6R853gPKlAr_N4_yLXE-AisoSpFQHZuzMv18WLb_TPd09IgLRE9PMbkUA9cXofFUSmZNIWu8UdgdQwIawk2FqabZkIurQqMeePS5sBfIu5sYoL7GZ4Nv8JuRqCbbU33yfe5DIeNFX9NBQ', 
+}
+
+export const refreshTokenConfig = {
+  ...refreshTokenSecret,
   expiresIn: '14d' 
 }
