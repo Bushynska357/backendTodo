@@ -39,7 +39,7 @@ import { APP_GUARD } from "@nestjs/core";
             }
         ])
     ],
-    exports: [JwtModule] // You need to reexport JwtModule because of you want to use it in AppModule (jwt-parse middleware)
+    exports: [JwtModule,MongooseModule] // You need to reexport JwtModule because of you want to use it in AppModule (jwt-parse middleware)
     
 })
 

@@ -26,8 +26,8 @@ export class UserDto{
     @Exclude()
     refreshToken:string;
 
-    // @Expose()
-    // items:List[];
+    @Exclude()
+    items:List[];
 
     constructor(partial: Partial<UserDto>) {
         Object.assign(this, partial);

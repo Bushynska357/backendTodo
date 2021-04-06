@@ -4,8 +4,6 @@ import { AuthService } from "./auth.service";
 import { SignInUserDto } from "./auth-dto/sign-in.dto";
 import { SignUpUserDto } from "./auth-dto/sign-up.dto";
 import { User } from "./user.schema";
-import { nextTick } from "node:process";
-import { RequestModel } from "./request.interface";
 import { RefreshTokenDto } from "./refresh-token.dto";
 
 @UseInterceptors(ClassSerializerInterceptor)

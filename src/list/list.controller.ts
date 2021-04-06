@@ -1,9 +1,7 @@
 import { Body, ClassSerializerInterceptor, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Put, Req, SerializeOptions, SetMetadata, UseGuards, UseInterceptors } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { AnyFilesInterceptor } from '@nestjs/platform-express';
-import { plainToClass, serialize } from 'class-transformer';
+
 import { AuthGuard } from '../auth.guard';
-import { JwtParseMiddleware } from '../auth/jwt-parse.middleware';
 import { CreateTodoDto } from './dto/create-todo.dto';
 import { TodoItem } from './dto/transform-todo.dto';
 import { UpdateTodoDto } from './dto/update-todo.dto';
@@ -12,6 +10,7 @@ import { List } from './schemas/list.schema';
 import { Roles } from '../auth/roles/roles.decorator'
 import { userRole } from '../auth/roles/role.enum';
 import { RolesGuard } from '../auth/roles/roles.guard';
+import { RequestModel } from '../auth/request.interface';
 
 
 @UseInterceptors(ClassSerializerInterceptor)
@@ -29,31 +28,51 @@ export class ListController {
     
     
     @Get()
-    @Roles('user')
-    getAll(): Promise<TodoItem[]>{
-        return this.listService.findAll()    
+    @Roles(userRole.user, userRole.admin)
+    getAll(@Req() req:RequestModel): Promise<List[]>{
+        const { user } = req;
+        if(user.role === userRole.admin) {
+            return this.listService.findAll()  
+        }
+          
+        return this.listService.findByUserId(user.id);
     }
 
     
     @Post()
-    @Roles('user')
+    @Roles(userRole.user)
     @HttpCode(HttpStatus.CREATED)
-    create(@Body() createTodoDto:CreateTodoDto):Promise<TodoItem>{
-        return this.listService.create(createTodoDto)
+    create(@Req() req: RequestModel,@Body() createTodoDto:CreateTodoDto):Promise<TodoItem>{
+        const { user } = req;
+        // console.log(req)
+        return this.listService.create(createTodoDto, user.id)
     }
 
    
     @Delete(':id')
-    @Roles('admin')
-    remove(@Param('id') id:string):Promise<List>{
-        return this.listService.deleteById(id)
+    @Roles(userRole.user, userRole.admin)
+    remove(@Req() req: RequestModel,@Param('id') id:string):Promise<List>{
+        const { user } = req;
+        if(user.role === userRole.admin){
+            return this.listService.deleteById(id)
+        }
+        if (user.role === userRole.user){
+            return this.listService.deleteByUserId(id, user.id)
+        }
+       
     }
 
     
     @Put(':id')
-    @Roles('admin')
-    update( @Param('id') id:string, @Body() updateTodoDto:UpdateTodoDto):Promise<TodoItem>{
-        return this.listService.updateTodo(id,updateTodoDto)
+    @Roles(userRole.user, userRole.admin)
+    update(@Req() req: RequestModel, @Param('id') id:string, @Body() updateTodoDto:UpdateTodoDto):Promise<TodoItem>{
+        const { user } = req;
+        if(user.role === userRole.admin){
+            return this.listService.updateTodo(id,updateTodoDto)
+        }
+        if (user.role === userRole.user){
+            return this.listService.updateTodoByUserId(id, user.id, updateTodoDto)
+        }
     }
 
 }
