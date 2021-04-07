@@ -77,7 +77,7 @@ export class ListService{
 
         if(!item) throw new NotFoundException();
 
-        const user = await this.userModel.findOne(userId).exec();
+        const user = await this.userModel.findById(userId).exec();
         const populatedUser = await user.populate('items').execPopulate();
         const itemsOfUser = populatedUser.items as ListDocument[];
 
