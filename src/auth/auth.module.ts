@@ -6,13 +6,21 @@ import { CounterModule } from "../counter/counter.module";
 import { CounterService } from "../counter/counter.service";
 import { AuthController } from "./auth.controller";
 import { AuthService } from "./auth.service";
-import { Constants } from "../constants";
+import { accessToken } from "../constants";
 import { User, UserSchema } from "./user.schema";
+import { RolesGuard } from "./roles/roles.guard";
+import { APP_GUARD } from "@nestjs/core";
 
 @Module({
-    providers:[AuthService],
+    providers:[AuthService,{
+        provide: APP_GUARD,
+        useClass: RolesGuard,
+      } ],
     controllers:[AuthController],
-    imports:[JwtModule.register({ secret: Constants.secret}),
+    imports:[JwtModule.register({
+        secret: accessToken.secret,
+        signOptions: { expiresIn: accessToken.expiresIn },
+    }),
         MongooseModule.forFeatureAsync([
             {
                 name: User.name,
@@ -31,6 +39,7 @@ import { User, UserSchema } from "./user.schema";
             }
         ])
     ],
+    exports: [JwtModule,MongooseModule] // You need to reexport JwtModule because of you want to use it in AppModule (jwt-parse middleware)
     
 })
 

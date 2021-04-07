@@ -1,5 +1,7 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { Document } from 'mongoose';
+import { Document, SchemaTypes } from 'mongoose';
+import { List } from "../list/schemas/list.schema";
+import { userRole } from "./roles/role.enum";
 
 export type UserDocument = User & Document;
 
@@ -16,6 +18,16 @@ export class User{
 
     @Prop({required:true})
     fullname:string
+
+    @Prop({default: userRole.user})
+    role:userRole
+
+    @Prop()
+    refreshToken:string;
+
+    @Prop({ required: true, type: [{ type: SchemaTypes.Number, ref: List.name }]})
+    items:List[];
+
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
